@@ -1,11 +1,13 @@
 package tacos.web;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import tacos.Ingredient;
 import tacos.Ingredient.Type;
 import tacos.Taco;
+import tacos.data.IngredientRepository;
 
 @Slf4j
 @Controller
@@ -26,7 +29,15 @@ import tacos.Taco;
 public class DesignTacoController {
 
 //end::head[]
+  
+  private final IngredientRepository ingredientRepo;
+  
+  @Autowired
+  public DesignTacoController(IngredientRepository ingredientRepo) {
+    this.ingredientRepo = ingredientRepo;
+  }
 
+  /*
 	@ModelAttribute
 	public void addIngredientsToModel(Model model) {
 		List<Ingredient> ingredients = Arrays.asList(
@@ -51,23 +62,43 @@ public class DesignTacoController {
 	}
 	
 	@GetMapping
-	public String showDesignForm(Model model) {
-	    model.addAttribute("design", new Taco());
-	    return "design";
-	}
+  public String showDesignForm(Model model) {
+    model.addAttribute("design", new Taco());
+    return "design";
+  }
+	*/
+	
+	
+	@GetMapping
+  public String showDesignForm(Model model) {
+    List<Ingredient> ingredients = new ArrayList<>();
+    ingredientRepo.findAll().forEach(i -> ingredients.add(i));
+    
+    System.out.println(ingredients);
+    
+    Type[] types = Ingredient.Type.values();
+    for (Type type : types) {
+      model.addAttribute(type.toString().toLowerCase(), 
+          filterByType(ingredients, type));      
+    }
+    
+    model.addAttribute("design", new Taco());
+    
+    // System.out.println("called!!!");
+
+    return "design";
+  }
+  
+
 	
 	@PostMapping
-	public String processDesign(@Valid @ModelAttribute("design") Taco design, BindingResult bindingResult, Errors errors, Model model) {
-		
-//		if (bindingResult.hasErrors()){
-//	        System.out.println(bindingResult.getAllErrors());
-//	    } else {
-//			System.out.println("OK");
-//	    }
+	public String processDesign(@Valid @ModelAttribute("design") Taco design, Errors errors, Model model) {
 		
 		if (errors.hasErrors()) {
 //			model.addAttribute("design", new Taco());
-			return "design";
+		  return "design";
+		  // return showDesignForm(model);
+
 		}
 		
 		// Save the taco design...

@@ -2,6 +2,11 @@
 //tag::allButValidation[]
 package tacos;
 import javax.validation.constraints.Digits;
+import java.util.Date;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
@@ -11,6 +16,12 @@ import lombok.Data;
 
 @Data
 public class Order {
+  
+  @Id
+  private Long id;
+  //end::tableAndId[]
+  
+  private Date placedAt = new Date();
 
   //end::allButValidation[]
   @NotBlank(message="Name is required")
